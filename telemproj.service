@@ -1,0 +1,13 @@
+[Unit]
+Description=Telemetry Project Auto-Start
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/pi/Documents/TelemProj/start_telem.sh
+Restart=no
+User=pi
+WorkingDirectory=/home/pi/Documents/TelemProj
+
+[Install]
+WantedBy=multi-user.target
