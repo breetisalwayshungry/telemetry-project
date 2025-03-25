@@ -23,9 +23,8 @@ echo "Starting camera..."
 [ -p /tmp/camera_pipe ] || mkfifo /tmp/camera_pipe # creates named pipe
 ffmpeg -i /tmp/camera_pipe -c:v copy -movflags +frag_keyframe+empty_moov ~/Videos/video_$(date +"%Y%m%d_%H%M%S").mp4 &
 sleep 2
-libcamera-vid -t 30000 --output /tmp/camera_pipe &
+libcamera-vid -t 30000 --output /tmp/camera_pipe & # time to record. this dev version is for 30 seconds. Prior to flight, this will be changed to 600000 (10 min)
 
-#libcamera-vid -t 60 --output - | ffmpeg -i - -c:v copy -movflags +frag_keyframe+empty_moov ~/Videos/video_$(date +"%Y%m%d_%H%M%S").mp4 &
 sleep 10
 
 echo "Running sensors.py"
