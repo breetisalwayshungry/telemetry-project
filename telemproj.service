@@ -7,7 +7,7 @@ Type=simple
 ExecStart=/home/pi/Documents/TelemProj/start_telem.sh
 Restart=no
 User=pi
-WorkingDirectory=/home/pi/Documents/TelemProj
+WorkingDirectory=/home/pi/projects/flightpi
 
 [Install]
 WantedBy=multi-user.target
