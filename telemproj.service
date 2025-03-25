@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/home/pi/Documents/TelemProj/start_telem.sh
+ExecStart=/home/pi/projects/flightpi/start_telem.sh
 Restart=no
 User=pi
 WorkingDirectory=/home/pi/projects/flightpi
