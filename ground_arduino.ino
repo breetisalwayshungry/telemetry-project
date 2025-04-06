@@ -45,6 +45,10 @@ void loop() {
     
     Serial.print("Received: ");
     Serial.print(receivedMessage);
+    if (radio.testRPD()) {
+      Serial.println(" | Signal Strength: Strong"); // >-64dBm
+    } else {
+      Serial.println(" | Signal Strength: Weak"); // <-64dBm
     }
     delay(10); 
   }
