@@ -36,12 +36,52 @@ def parse_data(raw_line):
 
 def send_data(): 
 	global sensor_data
+
+	# Initialize variable
+	last_sent_time = time.time()
+
+	# Determine contents of each packet no. (col 1, sensor_data index; col 2, packet no.)
+	packet_matrix = [
+		(1, 1), # Sensor data index 1, packet 1
+		(2, 1), 
+		(3, 1), 
+		(4, 1), 
+		(5, 2), # Sensor data index 5, packet 2
+		(6, 2), 
+		(7, 2), 
+		(8, 3), 
+		(9, 3), 
+		(10, 3), 
+		(11, 4), 
+		(12, 4), 
+		(13, 4), 
+		(14, 5), 
+		(15, 5), 
+	]
+
 	while True: 
-		if sensor_data: 
-			RF_line = ', '.join(map(str, sensor_data))
-			print(f"[RF] Sending telem: {RF_line}")
-			transceiver.send_telemetry(RF_line)
-		time.sleep(1) # sends data at 1Hz
+		current_time = time.time()
+		elapsed_time = current_time - last_sent_time
+		
+		packet_data = {}
+
+		# Loop through the matrix and group data by packet number
+		for index, packet_no in packet_matrix: 
+			if packet_no not in packet_data: 
+				packet_data[packet_no] = []
+			packet_data[packet_no].append(sensor_data[index])
+
+		# Send each packet
+		if elapsed_time >= 1.0: 
+			for packet_no, data in packet_data.items(): 
+				# Format the packet
+				RF_line = f"{packet_no:02d}," + ','.join(map(str, data))
+				print(f"[RF] Sending telemetry: {RF_line}")
+				transceiver.send_telemetry(RF_line)
+				
+			last_sent_time = current_time
+
+		time.sleep(0.01)
 
 def main(): 
 	# Initialize transceiver
