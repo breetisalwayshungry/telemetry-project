@@ -42,21 +42,21 @@ def send_data():
 
 	# Determine contents of each packet no. (col 1, sensor_data index; col 2, packet no.)
 	packet_matrix = [
-		(1, 1), # Sensor data index 1, packet 1
+		(0, 1), # Sensor data index 0, packet 1
+		(1, 1), 
 		(2, 1), 
 		(3, 1), 
-		(4, 1), 
-		(5, 2), # Sensor data index 5, packet 2
+		(4, 2), # Sensor data index 4, packet 2
+		(5, 2), 
 		(6, 2), 
-		(7, 2), 
+		(7, 3), 
 		(8, 3), 
 		(9, 3), 
-		(10, 3), 
+		(10, 4), 
 		(11, 4), 
 		(12, 4), 
-		(13, 4), 
+		(13, 5), 
 		(14, 5), 
-		(15, 5), 
 	]
 
 	while True: 
