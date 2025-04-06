@@ -24,7 +24,6 @@ def send_telemetry(message="test"): # default 'test' if no message passed
 	success = radio.write(chunk.encode('utf-8'))
 	if success: 
 		print(f"[transceiver.py] Sent: {chunk}")
-	time.sleep(0.1)
 
 	radio.startListening()
 
