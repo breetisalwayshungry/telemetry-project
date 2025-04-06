@@ -12,8 +12,6 @@ RF24 radio(CE_PIN, CSN_PIN);
 byte telemPipe[6] = "00001";
 byte commandPipe[6] = "00002"; 
 
-String fullMessage = ""; // define buffer
-
 void setup() {
   // Start the serial communication
   Serial.begin(9600);
@@ -44,18 +42,10 @@ void loop() {
   if (radio.available()) {
     char receivedMessage[64] = "";  // Buffer to hold the received message
     radio.read(&receivedMessage, sizeof(receivedMessage));  // Read data into buffer
-
-    String message = String(receivedMessage); 
-
-    fullMessage += message;
-
-    if (fullMessage.endsWith("\n")) { 
-      Serial.print("Received: ");
-      Serial.print(fullMessage);
-
-      fullMessage = ""; 
+    
+    Serial.print("Received: ");
+    Serial.print(receivedMessage);
     }
-
-    delay(50); 
+    delay(10); 
   }
 }
