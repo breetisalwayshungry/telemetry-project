@@ -1,8 +1,6 @@
 import time
 from pyrf24 import RF24, RF24_PA_HIGH, RF24_250KBPS
 
-# test
-
 # Initialie radio
 radio = RF24(5, 0) # GPIO 5 is CE pin, GPIO 8 is CSN pin 0
 
