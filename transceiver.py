@@ -23,24 +23,24 @@ def send_telemetry(message="test"): # default 'test' if no message passed
 
 	success = radio.write(chunk.encode('utf-8'))
 	if success: 
-		print(f"[transceiver.py] Sent: {chunk}")
+		print(f"<transceiver.py> [RF] Sent: {chunk}")
 
 	radio.startListening()
 
 def receive_command(): 
 	if radio.available(): 
 		command = radio.read(radio.getDynamicPayloadSize()).decode('utf-8')
-		print(f"[transceiver.py] Command received: {command}")
+		print(f"<transceiver.py> [RF] Command received: {command}")
 		process_command(command)
 
 def process_command(command):
 	if command == "TEST": 
-		print("[transceiver.py] Test Successful")
+		print("<transceiver.py> [INFO] Test Successful")
 	elif command == "example": 
 		# perform action
-		print("[transceiver.py] this is an example")
+		print("<transceiver.py> [INFO] this is an example")
 	else: 
-		print(f"[transceiver.py] Unknown command: {command}")
+		print(f"<transceiver.py> [WARNING] Unknown command: {command}")
 
 if __name__ == "__main__":
 	setup_radio()
