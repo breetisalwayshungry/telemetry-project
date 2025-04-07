@@ -9,6 +9,8 @@ BAUD_RATE = 115200
 
 sensor_data = {}
 
+gps_buffer = [None] * 5 # lat, lon, gps_alt, speed, sat_count
+
 def read_sensor_data(): 
 	global sensor_data
 	try: 
@@ -28,17 +30,28 @@ def read_sensor_data():
 		logger.close_logger()
 
 def parse_data(raw_line): 
+	global gps_buffer
+	
 	try: 
-		return [float(x) for x in raw_line.split(", ")]
+		data = [float(x) for x in raw_line.split(", ")]
+
+		# If GPS data is included (starting at index 10)
+		if len(data) >= 10: 
+			gps_buffer = data[10:14]
+		
+		return data
+		
 	except ValueError: 
 		print(f"<sensors.py> [WARNING] Invalid data format: {raw_line}")
 		return []
 
 def send_data(): 
 	global sensor_data
+	global gps_buffer
 
 	# Initialize variable
 	last_sent_time = time.time()
+	sensor_data_upd = sensor_data
 
 	# Determine contents of each packet no. (col 1, sensor_data index; col 2, packet no.)
 	packet_matrix = [
@@ -65,11 +78,16 @@ def send_data():
 		
 		packet_data = {}
 
+		if len(sensor_data_upd) <= 10: 
+			sensor_data_upd = sensor_data_upd + gps_buffer #adds gps buffer to be transmitted
+
 		# Loop through the matrix and group data by packet number
 		for index, packet_no in packet_matrix: 
+			if index >= len(sensor_data_upd):
+				continue # Skip if index is out of bounds
 			if packet_no not in packet_data: 
 				packet_data[packet_no] = []
-			packet_data[packet_no].append(sensor_data[index])
+			packet_data[packet_no].append(sensor_data_upd[index])
 
 		# Send each packet
 		if elapsed_time >= 1.0: 
