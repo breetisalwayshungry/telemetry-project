@@ -7,9 +7,8 @@ import threading # Allows tasks to run in parallel
 SERIAL_PORT = "/dev/ttyUSB0"
 BAUD_RATE = 115200
 
-sensor_data = {}
-
-gps_buffer = [None] * 5 # lat, lon, gps_alt, speed, sat_count
+sensor_data = []
+gps_buffer = [None] * 5
 
 def read_sensor_data(): 
 	global sensor_data
@@ -31,16 +30,15 @@ def read_sensor_data():
 
 def parse_data(raw_line): 
 	global gps_buffer
-	
+
 	try: 
 		data = [float(x) for x in raw_line.split(", ")]
+		if len(data) > 10:
+			gps_buffer = data[10:15]
+			print(f"[DEBUG] GPS_buffer: {gps_buffer}")
 
-		# If GPS data is included (starting at index 10)
-		if len(data) >= 10: 
-			gps_buffer = data[10:14]
-		
 		return data
-		
+
 	except ValueError: 
 		print(f"<sensors.py> [WARNING] Invalid data format: {raw_line}")
 		return []
@@ -48,57 +46,40 @@ def parse_data(raw_line):
 def send_data(): 
 	global sensor_data
 	global gps_buffer
-
-	# Initialize variable
+	
 	last_sent_time = time.time()
-	sensor_data_upd = sensor_data
 
-	# Determine contents of each packet no. (col 1, sensor_data index; col 2, packet no.)
+	# define packet contents (hardcoded) col1 sensor index, col2 packet no. 
 	packet_matrix = [
-		(0, 1), # Sensor data index 0, packet 1
-		(1, 1), 
-		(2, 1), 
-		(3, 1), 
-		(4, 2), # Sensor data index 4, packet 2
-		(5, 2), 
-		(6, 2), 
-		(7, 3), 
-		(8, 3), 
-		(9, 3), 
-		(10, 4), 
-		(11, 4), 
-		(12, 4), 
-		(13, 5), 
-		(14, 5), 
+		(0, 1), (1, 1), (2, 1), (3, 1), 
+		(4, 2), (5, 2), (6, 2), 
+		(7, 3), (8, 3), (9, 3), 
+		(10, 4), (11, 4), (12, 4), 
+		(13, 5), (14, 5), 
 	]
 
 	while True: 
 		current_time = time.time()
-		elapsed_time = current_time - last_sent_time
-		
-		packet_data = {}
+		if current_time - last_sent_time >= 1.0:
+			sensor_data_upd = sensor_data[:] if len(sensor_data) > 0 else []
+			if len(sensor_data_upd) <= 10: 
+				sensor_data_upd += gps_buffer
 
-		if len(sensor_data_upd) <= 10: 
-			sensor_data_upd = sensor_data_upd + gps_buffer #adds gps buffer to be transmitted
+			packet_data = {}
+			for index, packet_no in packet_matrix: 
+				if index < len(sensor_data_upd):
+					if packet_no not in packet_data: 
+						packet_data[packet_no] = []
+					packet_data[packet_no].append(sensor_data_upd[index])
 
-		# Loop through the matrix and group data by packet number
-		for index, packet_no in packet_matrix: 
-			if index >= len(sensor_data_upd):
-				continue # Skip if index is out of bounds
-			if packet_no not in packet_data: 
-				packet_data[packet_no] = []
-			packet_data[packet_no].append(sensor_data_upd[index])
-
-		# Send each packet
-		if elapsed_time >= 1.0: 
-			for packet_no, data in packet_data.items(): 
-				# Format the packet
+			for packet_no, data in packet_data.items():
+				#format packet
 				RF_line = f"{packet_no:02d}," + ','.join(map(str, data))
 				print(f"<sensors.py> [RF] Sending telemetry: {RF_line}")
 				transceiver.send_telemetry(RF_line)
-				
-				time.sleep(0.1)
-				
+
+				time.sleep(0.05)
+
 			last_sent_time = current_time
 
 		time.sleep(0.01)
