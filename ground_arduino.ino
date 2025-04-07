@@ -43,13 +43,12 @@ void loop() {
     char receivedMessage[64] = "";  // Buffer to hold the received message
     radio.read(&receivedMessage, sizeof(receivedMessage));  // Read data into buffer
     
-    Serial.print("Received: ");
-    Serial.print(receivedMessage);
     if (radio.testRPD()) {
-      Serial.println(" | Signal Strength: Strong"); // >-64dBm
+      Serial.print("S,"); // strong >-64dBm
     } else {
-      Serial.println(" | Signal Strength: Weak"); // <-64dBm
+      Serial.print("W,"); // weak <-64dBm
     }
+    Serial.println(receivedMessage);
     delay(10); 
   }
 }
