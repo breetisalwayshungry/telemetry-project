@@ -23,7 +23,11 @@ class ArduinoReader:
         with open(self.output_file, mode='a', newline='') as file:
             writer = csv.writer(file)
             if file.tell() == 0:  # If file is empty, write header
-                writer.writerow(['Timestamp', 'Message'])
+                writer.writerow(['Timestamp','Message','Signal Strength','Packet No.','Arduino Elapsed Time [ms]',
+                                 'BMP Temperature [C]','BMP Pressure [kPa]','BMP Altitude [m]',
+                                 'MPU X Acceleration [m/s]','MPU Y Acceleration [m/s]','MPU Z Acceleration [m/s]',
+                                 'MPU X Gyro [deg/s]','MPU Y Gyro [deg/s]','MPU Z Gyro [deg/s]',
+                                 'GPS Lat','GPS Lon','GPS Altitude [m]','GPS Speed [m/s]','GPS Sat Count'])
 
     def read_telemetry(self):
         """Reads and writes data from Arduino to CSV file."""
@@ -40,12 +44,23 @@ class ArduinoReader:
                         if ',' in telemetry_data:
                             # If it contains commas, split by commas and write each part as a separate column
                             split_data = telemetry_data.split(',')
-                            row_data = [timestamp] + split_data  # Add timestamp at the beginning
+                            if split_data[1] == '01':
+                                row_data = [timestamp] + [telemetry_data] + split_data 
+                            elif split_data[1] == '02': 
+                                row_data = [timestamp] + [telemetry_data] + split_data[0:2] + [""] * 4 + split_data[2:]
+                            elif split_data[1] == '03': 
+                                row_data = [timestamp] + [telemetry_data] + split_data[0:2] + [""] * 7 + split_data[2:]
+                            elif split_data[1] == '04':
+                                row_data = [timestamp] + [telemetry_data] + split_data[0:2] + [""] * 10 + split_data[2:]
+                            elif split_data[1] == '05':
+                                row_data = [timestamp] + [telemetry_data] + split_data[0:2] + [""] * 13 + split_data[2:]
+                            else:
+                                row_data = [timestamp, telemetry_data]
                         else:
                              # If no commas, treat it as one data entry and write it as a single value
                              row_data = [timestamp, telemetry_data]
                         
-                        writer.writerow([timestamp, telemetry_data])
+                        writer.writerow(row_data)
                         print(f"{timestamp}: {telemetry_data}")
 
         except KeyboardInterrupt:
