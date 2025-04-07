@@ -1,8 +1,6 @@
 import time
 from pyrf24 import RF24, RF24_PA_HIGH, RF24_250KBPS
 
-# test
-
 # Initialie radio
 radio = RF24(5, 0) # GPIO 5 is CE pin, GPIO 8 is CSN pin 0
 
@@ -21,37 +19,28 @@ def setup_radio():
 	radio.startListening()
 
 def send_telemetry(message="test"): # default 'test' if no message passed
-	message += "\n"
-
-	chunk_size = 32 # size limit of each package
-	message_length = len(message)
-
 	radio.stopListening()
 
-	# break message into chunks and send
-	for i in range(0, message_length, chunk_size): 
-		chunk = message[i:i + chunk_size]
-		success = radio.write(chunk.encode('utf-8'))
-		if success: 
-			print(f"Sent: {chunk}")
-		time.sleep(0.1)
+	success = radio.write(message.encode('utf-8'))
+	if success: 
+		print(f"<transceiver.py> [RF] Sent: {message}")
 
 	radio.startListening()
 
 def receive_command(): 
 	if radio.available(): 
 		command = radio.read(radio.getDynamicPayloadSize()).decode('utf-8')
-		print(f"Command received: {command}")
+		print(f"<transceiver.py> [RF] Command received: {command}")
 		process_command(command)
 
 def process_command(command):
 	if command == "TEST": 
-		print("Test Successful")
+		print("<transceiver.py> [INFO] Test Successful")
 	elif command == "example": 
 		# perform action
-		print("This is an example")
+		print("<transceiver.py> [INFO] this is an example")
 	else: 
-		print(f"Unknown command: {command}")
+		print(f"<transceiver.py> [WARNING] Unknown command: {command}")
 
 if __name__ == "__main__":
 	setup_radio()

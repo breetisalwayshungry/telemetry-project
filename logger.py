@@ -32,7 +32,7 @@ def flush_buffer():
 		with open(log_file, mode="a", newline="") as f: 
 			csv_writer = csv.writer(f)
 			csv_writer.writerows(data_buffer)
-		print(f"[INFO] Flushed {len(data_buffer)} entries to CSV.")
+		print(f"<logger.py> [INFO] Flushed {len(data_buffer)} entries to CSV.")
 		data_buffer = []
 
 def close_logger():
